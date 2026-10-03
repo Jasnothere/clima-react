@@ -1,0 +1,10 @@
+.buscador{
+  display: flex;
+  gap: 8px;
+  background-color: blue;
+}
+
+.buscador input{
+  padding: 8px;
+  width: 250px;
+}
