@@ -1,14 +1,22 @@
 import { useState } from 'react';
 import './App.css';
 import { useFetch } from './hooks/useFetch';
+import { describirClima } from './clima';
 
-export default function app() {
+export default function App() {
   const [texto, setTexto] = useState("");
+  const [ciudad, setCiudad] = useState(null);
 
-  const url = texto.length >= 3 ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(texto)}&count=5&language=es` : null;
-  const ciudades = useFetch(url);
+  const urlCiudades = texto.length >= 3 ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(texto)}&count=5&language=es` : null;
+  const ciudades = useFetch(urlCiudades);
 
-  const { ciudades: datos, cargando, error } = ciudades;
+  const urlClima = ciudad
+  ? `https://api.open-meteo.com/v1/forecast?latitude=${ciudad.latitude}&longitude=${ciudad.longitude}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`
+  : null;
+
+const clima = useFetch(urlClima);
+
+  //const { ciudades: datos, cargando, error } = ciudades;
 
   return (
     <div>
@@ -18,12 +26,46 @@ export default function app() {
         onChange={e => setTexto(e.target.value)}
         placeholder="Ingrese un valor..."
       />
-      {cargando && <p>Buscando...</p>}
-      {error && <p>Error: {error}</p>}
-      {datos?.length === 0 && <p>Sin resultados</p>}
+      {ciudades.cargando && <p>Buscando...</p>}
+      {ciudades.error && <p>Error: {ciudades.error}</p>}
+      {ciudades.datos && !ciudades.datos.results && <p>Sin resultados</p>}
+      
       <ul>
-        {datos?.map(c => <li key={c.id}>{c.name}, {c.admin1}, {c.country} </li>)}
+        {ciudades.datos?.results?.map(c => (
+          <li key={c.id} onClick={() => setCiudad(c)}>
+            {c.name}, {c.admin1}, {c.country}
+          </li>
+        ))}
       </ul>
+
+      {ciudad && (
+        <div>
+          <h2>{ciudad.name}</h2>
+
+          {clima.cargando && <p>Cargando clima...</p>}
+          {clima.error && <p>Error: {clima.error}</p>}
+
+          {clima.datos && (
+            <>
+              <p>
+                {clima.datos.current.temperature_2m} °C ·{" "}
+                {describirClima(clima.datos.current.weather_code)} · viento{" "}
+                {clima.datos.current.wind_speed_10m} km/h
+              </p>
+
+              <ul>
+                {clima.datos.daily.time.map((fecha, i) => (
+                  <li key={fecha}>
+                    {fecha}: mínima {clima.datos.daily.temperature_2m_min[i]} °C,
+                    máxima {clima.datos.daily.temperature_2m_max[i]} °C,{" "}
+                    {describirClima(clima.datos.daily.weather_code[i])}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }

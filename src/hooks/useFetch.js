@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 
 export const useFetch = (url) => {
-    const [ciudades, setCiudades] = useState(null);
+    const [datos, setDatos] = useState(null);
     const [cargando, setCargando] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         if (url === null) {
-            setCiudades(null);
+            setDatos(null);
             setError(null);
             setCargando(false);
             return;
@@ -31,8 +31,8 @@ export const useFetch = (url) => {
                     throw new Error("Error " + respuesta.status);
                 }
 
-                const datos = await respuesta.json();
-                setCiudades(datos.results ?? []);
+                const resultado = await respuesta.json();
+                setDatos(resultado);
                 setCargando(false);
 
             } catch (err) {
@@ -50,7 +50,7 @@ export const useFetch = (url) => {
     }, [url]);
 
     return {
-        ciudades,
+        datos,
         cargando,
         error
     };
