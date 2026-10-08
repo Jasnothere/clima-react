@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import './App.css';
 import { useFetch } from './hooks/useFetch';
 import { describirClima } from './clima';
@@ -16,7 +16,21 @@ export default function App() {
 
 const clima = useFetch(urlClima);
 
-  //const { ciudades: datos, cargando, error } = ciudades;
+const resumen = useMemo(() => {
+  if (!clima.datos) return null;
+
+  console.log("calculando resumen");
+
+  const { time, temperature_2m_max: max, temperature_2m_min: min } = clima.datos.daily;
+  const maxima = Math.max(...max);
+
+  return {
+    maxima: maxima,
+    minima: Math.min(...min),
+    dia: time[max.indexOf(maxima)]
+  };
+}, [clima.datos]);
+
 
   return (
     <div>
@@ -51,6 +65,11 @@ const clima = useFetch(urlClima);
                 {clima.datos.current.temperature_2m} °C ·{" "}
                 {describirClima(clima.datos.current.weather_code)} · viento{" "}
                 {clima.datos.current.wind_speed_10m} km/h
+              </p>
+
+              <p>
+                Esta semana: máxima {resumen.maxima} °C, mínima {resumen.minima} °C.
+                El día más caluroso es el {resumen.dia}.
               </p>
 
               <ul>
