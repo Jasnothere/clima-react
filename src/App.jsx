@@ -1,15 +1,18 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import "./App.css";
 import { useFetch } from "./hooks/useFetch";
+import { useDebounce } from "./hooks/useDebounce";
 import { describirClima } from "./clima";
 
 export default function App() {
   const [texto, setTexto] = useState("");
   const [ciudad, setCiudad] = useState(null);
 
+  const textoBuscado = useDebounce(texto, 400);
+
   const urlCiudades =
-    texto.length >= 3
-      ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(texto)}&count=5&language=es`
+    textoBuscado.length >= 3
+      ? `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(textoBuscado)}&count=5&language=es`
       : null;
   const ciudades = useFetch(urlCiudades);
 
@@ -50,52 +53,61 @@ export default function App() {
     entrada.current.focus();
   };
 
-  useDebounce(texto, 400);
-
   return (
-    <div>
+    <div className="app">
       <h1>Clima</h1>
-      <label>Buscador: </label>
-      <input
-        value={texto}
-        onChange={(e) => setTexto(e.target.value)}
-        placeholder="Ingrese un valor..."
-        ref={entrada}
-      />
-      <button onClick={limpiar}>Limpiar</button>
-      {ciudades.cargando && <p>Buscando...</p>}
-      {ciudades.error && <p>Error: {ciudades.error}</p>}
-      {ciudades.datos && !ciudades.datos.results && <p>Sin resultados</p>}
 
-      <ul>
+      <div className="buscador">
+        <label htmlFor="buscador">Buscador:</label>
+        <input
+          id="buscador"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          placeholder="Ingrese un valor..."
+          ref={entrada}
+        />
+        <button onClick={limpiar}>Limpiar</button>
+      </div>
+
+      {ciudades.cargando && <p className="aviso">Buscando...</p>}
+      {ciudades.error && <p className="error">Error: {ciudades.error}</p>}
+      {ciudades.datos && !ciudades.datos.results && (
+        <p className="aviso">Sin resultados</p>
+      )}
+
+      <ul className="ciudades">
         {ciudades.datos?.results?.map((c) => (
-          <li key={c.id} onClick={() => setCiudad(c)}>
+          <li
+            key={c.id}
+            onClick={() => setCiudad(c)}
+            className={ciudad?.id === c.id ? "elegida" : ""}
+          >
             {c.name}, {c.admin1}, {c.country}
           </li>
         ))}
       </ul>
 
       {ciudad && (
-        <div>
+        <div className="tarjeta">
           <h2>{ciudad.name}</h2>
 
-          {clima.cargando && <p>Cargando clima...</p>}
-          {clima.error && <p>Error: {clima.error}</p>}
+          {clima.cargando && <p className="aviso">Cargando clima...</p>}
+          {clima.error && <p className="error">Error: {clima.error}</p>}
 
-          {clima.datos && (
+          {clima.datos && !clima.cargando && (
             <>
-              <p>
+              <p className="actual">
                 {clima.datos.current.temperature_2m} °C ·{" "}
                 {describirClima(clima.datos.current.weather_code)} · viento{" "}
                 {clima.datos.current.wind_speed_10m} km/h
               </p>
 
-              <p>
+              <p className="resumen">
                 Esta semana: máxima {resumen.maxima} °C, mínima {resumen.minima}{" "}
                 °C. El día más caluroso es el {resumen.dia}.
               </p>
 
-              <ul>
+              <ul className="dias">
                 {clima.datos.daily.time.map((fecha, i) => (
                   <li key={fecha}>
                     {fecha}: mínima {clima.datos.daily.temperature_2m_min[i]}{" "}

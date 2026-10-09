@@ -1,10 +1,90 @@
-.buscador{
-  display: flex;
-  gap: 8px;
-  background-color: blue;
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px;
+  text-align: left;
 }
 
-.buscador input{
-  padding: 8px;
-  width: 250px;
+.app h1 {
+  margin: 0 0 24px;
+}
+
+.buscador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.buscador input {
+  flex: 1;
+  min-width: 180px;
+  padding: 8px 10px;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.buscador button {
+  padding: 8px 14px;
+  font: inherit;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.buscador button:hover {
+  opacity: 0.85;
+}
+
+.aviso {
+  margin-top: 12px;
+  font-style: italic;
+}
+
+.error {
+  margin-top: 12px;
+  color: #d33;
+}
+
+.ciudades {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.ciudades li {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.ciudades li:hover,
+.ciudades li.elegida {
+  background: var(--accent-bg);
+}
+
+.tarjeta {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.actual {
+  font-size: 1.2em;
+  color: var(--text-h);
+}
+
+.resumen {
+  margin: 12px 0;
+  padding: 8px 10px;
+  background: var(--code-bg);
+  border-radius: 6px;
+}
+
+.dias {
+  padding-left: 20px;
+  margin: 0;
 }
